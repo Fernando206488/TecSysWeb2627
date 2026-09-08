@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# IntelliJ
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Angular / Node
+node_modules/
+dist/
+.angular/
+
+# Spring / Maven
+target/
+
+# Environment
+.env
+
+# Logs
+*.log
