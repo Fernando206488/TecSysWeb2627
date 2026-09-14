@@ -1,7 +1,7 @@
 Ciudad:
 <select [(ngModel)]="selectedCity" (ngModelChange)="loadMap($event)">
-    @for (c of cities; track c.name) {
-    <option [ngValue]="c">{{ c.name }}</option>
+    @for (city of cities; track city.name) {
+    <option [ngValue]="city">{{ city.name }}</option>
     }
 </select>
 

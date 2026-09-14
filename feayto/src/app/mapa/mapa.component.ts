@@ -6,7 +6,7 @@ import {
 
 import * as L from 'leaflet';
 import { DecimalPipe } from '@angular/common';
-import { VehiculosService } from '../services/vehiculo.service';
+import { SimuladorService } from '../services/simulador.service';
 import { VehiculoDto } from '../model/VehiculoDto';
 import { FormsModule } from '@angular/forms';
 import { MunicipioDto } from '../model/MunicipioDto';
@@ -28,7 +28,7 @@ export class MapaComponent implements AfterViewInit, OnDestroy {
 
   vehiculos: VehiculoDto[] = [];
 
-  constructor(private vehiculosService: VehiculosService) { }
+  constructor(private vehiculosService: SimuladorService) { }
 
   ngAfterViewInit(): void {
     this.map = L.map('map').setView(
@@ -170,8 +170,13 @@ export class MapaComponent implements AfterViewInit, OnDestroy {
     if (!this.selectedCity)
       return
 
-    this.vehiculosService.generateBicycle(this.selectedCity.name).subscribe(() => {
+    this.vehiculosService.generateBicycle(this.selectedCity.name).subscribe((ok) => {
+      console.log(ok)
       this.loadVehiculos();
+    },
+    err => {
+      console.error(err.error.error);
+      alert(err.error.error);
     });
   }
 

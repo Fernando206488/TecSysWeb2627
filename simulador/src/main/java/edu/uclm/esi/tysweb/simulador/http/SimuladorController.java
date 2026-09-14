@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.uclm.esi.tysweb.simulador.dto.GeneracionDto;
 import edu.uclm.esi.tysweb.simulador.dto.MunicipioDto;
 import edu.uclm.esi.tysweb.simulador.dto.PuntoRutaDto;
 import edu.uclm.esi.tysweb.simulador.dto.VehiculoDto;
@@ -20,13 +21,13 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/vehiculos")
+@RequestMapping("/simulador")
 @CrossOrigin("*")
 @Tag(
     name = "Vehículos",
     description = "Operaciones relacionadas con la simulación de la circulación de bicicletas"
 )
-public class VehiculosController {
+public class SimuladorController {
 
     @Autowired
     private SimuladorService service;
@@ -36,7 +37,7 @@ public class VehiculosController {
         return this.service.getCities();
     }
 
-     @PostMapping("/simulacionAleatoria")
+    @PostMapping("/simulacionAleatoria")
     @Operation(
         summary = "Genera bicicletas en coordenadas aleatorias para la ciudad pasada como parámetro"
     )
@@ -48,13 +49,13 @@ public class VehiculosController {
     @Operation(
         summary = "Genera una bicicleta en coordenadas aleatorias para la ciudad pasada como parámetro"
     )
-    public void generateBicycle(@RequestParam @Parameter(description = "Nombre de la ciudad") String city) {
-        this.service.generateBicycle(city);
+    public GeneracionDto generateBicycle(@RequestParam @Parameter(description = "Nombre de la ciudad") String city) {
+        return this.service.generateBicycle(city);
     }
 
     @GetMapping("/getVehiculos/{city}")
     @Operation(
-        summary = "Recupera todos los vehículos que están circulando en la ciudad pasada como parámetro"
+        summary = "Devuelve los vehículos que están circulando en la ciudad pasada como parámetro"
     )
     public List<VehiculoDto> getVehiculos(@PathVariable @Parameter(description = "Nombre de la ciudad") String city) {
         return this.service.getVehiculos(city);

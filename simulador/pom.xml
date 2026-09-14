@@ -10,9 +10,9 @@
 	</parent>
 	<groupId>edu.uclm.esi.tysweb</groupId>
 	<artifactId>simulador</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1</version>
 	<packaging>war</packaging>
-	<name>simulador</name>
+	<name>tysweb2627#simulador.war</name>
 	<description/>
 	<url/>
 	<licenses>
@@ -69,6 +69,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>tysweb2627#simulador</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

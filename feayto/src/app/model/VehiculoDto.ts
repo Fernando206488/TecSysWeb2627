@@ -1,4 +1,5 @@
 export interface VehiculoDto {
+  id : number
   matricula : string
   latitudOrigen : number
   longitudOrigen : number
@@ -11,4 +12,8 @@ export interface VehiculoDto {
   direccion : string
   kmh : number
   distanciaRecorrida : number
+  distanciaTotal : number
+  bateria : number
+  activo : boolean
+  municipio : string
 }

@@ -1,9 +1,10 @@
 package edu.uclm.esi.tysweb.simulador.services;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -15,6 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import edu.uclm.esi.tysweb.simulador.dao.FeatureDao;
 import edu.uclm.esi.tysweb.simulador.dao.MunicipioDao;
+import edu.uclm.esi.tysweb.simulador.dto.GeneracionDto;
+import edu.uclm.esi.tysweb.simulador.dto.GeneracionElementDto;
 import edu.uclm.esi.tysweb.simulador.dto.MunicipioDto;
 import edu.uclm.esi.tysweb.simulador.dto.PuntoRutaDto;
 import edu.uclm.esi.tysweb.simulador.dto.RouteResponse;
@@ -34,7 +37,7 @@ public class SimuladorService {
     private FeatureDao featureDao;
 
     private int ultimaMatricula = 1;
-    private final static int MAX = 5;
+    private final static int MAX = 20;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     private Map<String, VehiculoList> vehiculosPorMunicipio = new ConcurrentHashMap<>();
@@ -58,26 +61,6 @@ public class SimuladorService {
         v.arrancar(() -> { vehiculos.remove(v);});
     }
 
-    public void generateBicycle(String city) {
-        Municipio municipio = this.municipioDao.findByName(city);
-        Feature origen, destino;
-        origen = this.featureDao.findRandomByMunicipio(municipio.getId());
-        destino = null;
-        do {
-            destino = this.featureDao.findRandomByMunicipio(municipio.getId());
-        } while (destino.getId().equals(origen.getId()));
-
-        Vehiculo vehiculo = new Vehiculo(ultimaMatricula++, origen, destino);
-        try {
-            RouteResponse ruta = getRoute(origen, destino);
-            vehiculo.setRuta(ruta.instructionsData().instruction());
-            VehiculoList vehiculos = this.getVehiculosEnCiudad(city);
-            vehiculos.add(vehiculo);
-            vehiculo.arrancar(() -> { vehiculos.remove(vehiculo);});
-        } catch (Exception e) {
-        }
-    }
-
     public void simulacionAleatoria(String city) {
         VehiculoList vehiculos = this.getVehiculosEnCiudad(city);
 
@@ -86,6 +69,42 @@ public class SimuladorService {
                 generateBicycle(city);
             }
         }, 0, 1, TimeUnit.SECONDS);
+    }
+
+    public GeneracionDto generateBicycle(String city) {
+        GeneracionDto result = new GeneracionDto(city);
+        Municipio municipio = this.municipioDao.findByName(city);
+        if (municipio==null) {
+            result.setResponseType("error");
+            result.setResponse("No se encuentra el municipio " + city);
+            return result;
+        }
+
+        result.setResponseType("todo OK");
+        Feature origen, destino;
+        origen = this.featureDao.findRandomByMunicipio(municipio.getId());
+        destino = null;
+        do {
+            destino = this.featureDao.findRandomByMunicipio(municipio.getId());
+        } while (destino.getId().equals(origen.getId()));
+
+        Vehiculo vehiculo = new Vehiculo(ultimaMatricula++, origen, destino);
+        GeneracionElementDto element = new GeneracionElementDto(ultimaMatricula-1);
+        try {
+            RouteResponse ruta = getRoute(origen, destino);
+            vehiculo.setRuta(ruta.instructionsData().instruction());
+            VehiculoList vehiculos = this.getVehiculosEnCiudad(city);
+            vehiculos.add(vehiculo);
+            vehiculo.arrancar(() -> { vehiculos.remove(vehiculo);});
+            element.setArrancado(true);
+            
+        } catch (Exception e) {
+            result.setResponseType("algún error");
+            element.setArrancado(false);
+            element.setError(e.getMessage());
+        }
+        result.addElement(element);
+        return result;
     }
 
     private VehiculoList getVehiculosEnCiudad(String city) {
