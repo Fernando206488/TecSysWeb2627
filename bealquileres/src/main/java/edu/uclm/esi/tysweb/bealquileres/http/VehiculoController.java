@@ -40,4 +40,20 @@ public class VehiculoController {
     private List<VehiculoDto> getVehiculos() {
         return this.service.getVehiculos();
     }
+
+    //Metodo para asignar un vehículo a un usuario.
+    @GetMapping ("/asignarVehiculo")
+    private void asignarVehiculo(String municipio, int idVehiculo) {
+        if(idVehiculo<1 || idVehiculo>100){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El id seleccionado no es válido. El valor debe estar comprendido entre 1 y 100");
+        }
+
+        if(municipio==null || municipio.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Debe seleccionar el municipio al que pertenece el vehiculo");
+        }
+
+        String idVehiculoStr = String.valueOf(idVehiculo);
+
+        this.service.asignarVehiculo(municipio, idVehiculoStr);
+    }
 }
