@@ -6,4 +6,6 @@ import edu.uclm.esi.tysweb.bealquileres.model.Feature;
 
 public interface FeatureDao extends JpaRepository<Feature, String> {
 
+    Feature findByMunicipioAndNameAndNumber(String municipio, String nombre, Integer number, Integer capacidad);
+
 }

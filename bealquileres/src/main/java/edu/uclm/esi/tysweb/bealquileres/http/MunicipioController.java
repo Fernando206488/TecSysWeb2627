@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.uclm.esi.tysweb.bealquileres.dto.MunicipioRequest;
+import edu.uclm.esi.tysweb.bealquileres.dto.SetEstacionDtoRequest;
 import edu.uclm.esi.tysweb.bealquileres.services.MunicipioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -42,5 +43,10 @@ public class MunicipioController {
         @RequestBody MunicipioRequest request) {
             
         municipioService.load(request.municipio(), offset, limit, progress);
+    }
+
+    @PostMapping ("/setEstacion")
+    public void setEstacion(@RequestBody SetEstacionDtoRequest request){
+        municipioService.setEstacion(request.municipio(), request.nombre(), request.number(),request.capacidad());
     }
 }

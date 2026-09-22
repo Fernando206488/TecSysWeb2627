@@ -1,6 +1,7 @@
 package edu.uclm.esi.tysweb.bealquileres.http;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import edu.uclm.esi.tysweb.bealquileres.dto.VehiculoDto;
+import edu.uclm.esi.tysweb.bealquileres.dto.AsignarVehiculoRequestDto;
 import edu.uclm.esi.tysweb.bealquileres.services.VehiculoService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -42,18 +44,17 @@ public class VehiculoController {
     }
 
     //Metodo para asignar un vehículo a un usuario.
-    @GetMapping ("/asignarVehiculo")
-    private void asignarVehiculo(String municipio, int idVehiculo) {
-        if(idVehiculo<1 || idVehiculo>100){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El id seleccionado no es válido. El valor debe estar comprendido entre 1 y 100");
+    @PostMapping ("/asignarVehiculos")
+    private void asignarVehiculo(@RequestBody AsignarVehiculoRequestDto request) {
+        
+        if(request.municipio()==null || request.cantidad()==null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tienes que indicar la cantidad y el municipio");
         }
 
-        if(municipio==null || municipio.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Debe seleccionar el municipio al que pertenece el vehiculo");
+        if(request.cantidad()<1 || request.cantidad()>100){
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "La cantidad seleccionada no es válida. El valor debe estar comprendido entre 1 y 100");
         }
 
-        String idVehiculoStr = String.valueOf(idVehiculo);
-
-        this.service.asignarVehiculo(municipio, idVehiculoStr);
+            this.service.asignarVehiculos(request.municipio(), request.cantidad());
     }
 }

@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import edu.uclm.esi.tysweb.bealquileres.dao.FeatureDao;
 import edu.uclm.esi.tysweb.bealquileres.dao.MunicipioDao;
+import edu.uclm.esi.tysweb.bealquileres.dao.EstacionDao;
 import edu.uclm.esi.tysweb.bealquileres.dto.FeatureDto;
+import edu.uclm.esi.tysweb.bealquileres.model.Estacion;
 import edu.uclm.esi.tysweb.bealquileres.model.Feature;
 import edu.uclm.esi.tysweb.bealquileres.model.Municipio;
 
@@ -18,14 +22,16 @@ public class MunicipioService {
     private final CartoCiudadClient cartoCiudadClient;
     private final MunicipioDao dao;
     private final FeatureDao featureDao;
+    private final EstacionDao estacionDao;
 
     @Autowired 
     private SseService sseService;
 
-    public MunicipioService(CartoCiudadClient cartoCiudadClient, MunicipioDao dao, FeatureDao featureDao) {
+    public MunicipioService(CartoCiudadClient cartoCiudadClient, MunicipioDao dao, FeatureDao featureDao, EstacionDao estacionDao) {
         this.cartoCiudadClient = cartoCiudadClient;
         this.dao = dao;
         this.featureDao = featureDao;
+        this.estacionDao = estacionDao;
     }
 
     public void load(String name, Integer offset, Integer limit, Boolean progress) {
@@ -73,4 +79,26 @@ public class MunicipioService {
     public Integer getNumeroDeDirecciones(String municipio) {
         return this.cartoCiudadClient.getNumeroDeDirecciones(municipio);
     }
+
+    public void setEstacion(String municipio, String nombre, Integer number, Integer capacidad) {
+        Municipio muncipio = this.dao.findByName(municipio);
+        if(muncipio==null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encuentra el municipio " + municipio);
+        
+        Feature feature = this.featureDao.findByMunicipioAndNameAndNumber(municipio, nombre, number, capacidad);
+
+        if(feature == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encuentra la dirección " + nombre + " " + number + " en el municipio " + municipio);
+        
+        Estacion estacion = new Estacion();
+        estacion.setMunicipio(muncipio);
+        estacion.setName(feature.getName());
+        estacion.setNumero(feature.getNumber());
+        estacion.setLatitude(feature.getLatitude());
+        estacion.setLongitude(feature.getLongitude());
+        estacion.setCapacidad(number);
+
+        this.estacionDao.save(estacion);
+    }
+    
 }

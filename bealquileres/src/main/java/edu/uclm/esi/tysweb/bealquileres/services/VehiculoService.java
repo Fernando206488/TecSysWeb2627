@@ -38,23 +38,27 @@ public class VehiculoService {
                 )).toList();
     }
 
-    //Se accede al dao para poder localizar la bicicleta que se desea y en caso de que este se envía
-    public void asignarVehiculo(String municipio, String idVehiculo) {
-
-        Municipio m = municipioDao.findByName(municipio);
+    //Metodo llamado desde VehiculoController, accede al dao para poder localizar la bicicleta que se desea y en caso de que esté, se envía
+    public void asignarVehiculos(String city, Integer cantidad) {
+        Municipio municipio = this.municipioDao.findByName(city);
 
         //En caso de que no encuentre el municipio seleccionado, lanza el error para comunicar que no está en la base de datos.
-        if(m == null) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "El municipio seleccionado no se encuentra en nuestra base de datos...");
+        if(municipio == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El municipio seleccionado no se encuentra en nuestra base de datos...");
         }
 
-        //Se accede al dao para poder localizar la bicicleta que se desea y en caso de que este se envía
-        this.dao.findById(idVehiculo).ifPresent(
-            v -> {
-                v.setMunicipio(m);
-                v.setActivo(true);
-                this.dao.save(v);
-            });
+        //Obtenemos todas las bicis libres y comprobamos que quedan mas de la cantidad indicada, sino lanzamos error por falta de bicis
+        List<Vehiculo> bicisLibres = this.dao.getBicisLibres(cantidad);
+        if(bicisLibres.size() < cantidad) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Solo se disponen de " + bicisLibres.size() + " bicicletas libres en este momento. No se puede asignar la cantidad de " + cantidad + " bicicletas.");
+        }
+
+        for(Vehiculo bici : bicisLibres) {
+            bici.setMunicipio(municipio);
+        }
+        
+        // Guardamos todas las bicis asignadas
+        this.dao.saveAll(bicisLibres);
     }
 
 }
