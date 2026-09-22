@@ -80,9 +80,9 @@ public class MunicipioService {
         return this.cartoCiudadClient.getNumeroDeDirecciones(municipio);
     }
 
-    public void setEstacion(String municipio, String nombre, Integer number, Integer capacidad) {
-        Municipio muncipio = this.dao.findByName(municipio);
-        if(muncipio==null)
+    public void setEstacion(String city, String nombre, Integer number, Integer capacidad) {
+        Municipio municipio = this.dao.findByName(city);
+        if(municipio==null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encuentra el municipio " + municipio);
         
         Feature feature = this.featureDao.findByMunicipioAndNameAndNumber(municipio, nombre, number, capacidad);
@@ -91,7 +91,7 @@ public class MunicipioService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se encuentra la dirección " + nombre + " " + number + " en el municipio " + municipio);
         
         Estacion estacion = new Estacion();
-        estacion.setMunicipio(muncipio);
+        estacion.setMunicipio(municipio);
         estacion.setName(feature.getName());
         estacion.setNumero(feature.getNumber());
         estacion.setLatitude(feature.getLatitude());
